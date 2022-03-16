@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Query } from '@datorama/akita';
 import { createSelector, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { GameState, GameStore } from './game.store';
@@ -7,7 +6,7 @@ import { GameState, GameStore } from './game.store';
 @Injectable({
   providedIn: 'root',
 })
-export class GameQuery extends Query<GameState> {
+export class GameQuery {
   private selectState = (state: GameState) => state;
 
   private selectAttemptedLetters = createSelector(
@@ -17,7 +16,10 @@ export class GameQuery extends Query<GameState> {
 
   private selectWord = createSelector(this.selectState, (state) => state.word);
 
-  private selectAllLetters = createSelector(this.selectState, (state) => state.allLetters);
+  private selectAllLetters = createSelector(
+    this.selectState,
+    (state) => state.allLetters
+  );
 
   private selectFoundCorrectLetters = createSelector(
     this.selectAttemptedLetters,
@@ -101,7 +103,7 @@ export class GameQuery extends Query<GameState> {
     }
   );
 
-  public allState$ = this.select();
+  public allState$ = this.store.stateSubject.asObservable();
 
   public attemptedInvalidLettersCount$ = this.ngRxSelect$(
     this.selectAttemptedInvalidLettersCount
@@ -139,9 +141,7 @@ export class GameQuery extends Query<GameState> {
     return this.ngRxSelect(this.selectGameIsFinished);
   }
 
-  constructor(protected override store: GameStore) {
-    super(store);
-  }
+  constructor(private store: GameStore) {}
 
   private ngRxSelect$<GameState, K>(
     mapFn: (state: GameState) => K
@@ -150,6 +150,6 @@ export class GameQuery extends Query<GameState> {
   }
 
   private ngRxSelect<GameState, K>(mapFn: (state: GameState) => K): K {
-    return mapFn(this.getValue() as any);
+    return mapFn(this.store.stateSubject.getValue() as any);
   }
 }

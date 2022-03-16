@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Store, StoreConfig } from '@datorama/akita';
+import { BehaviorSubject } from 'rxjs';
 import { createInitialState } from './initial-state';
 
 export interface GameState {
@@ -10,9 +10,16 @@ export interface GameState {
 @Injectable({
   providedIn: 'root',
 })
-@StoreConfig({ name: 'game' })
-export class GameStore extends Store<GameState> {
-  constructor() {
-    super(createInitialState());
+export class GameStore {
+  public stateSubject = new BehaviorSubject<GameState>(createInitialState());
+
+  public update(callback: (state: GameState) => GameState): void {
+    const existingState = this.stateSubject.getValue();
+
+    const newState = callback(existingState);
+
+    if (newState !== existingState) {
+      this.stateSubject.next(newState);
+    }
   }
 }
