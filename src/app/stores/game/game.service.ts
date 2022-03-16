@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { firstValueFrom, take } from 'rxjs';
 import { GameQuery } from './game.query';
 import { GameStore } from './game.store';
 import { createInitialState } from './initial-state';
@@ -12,14 +13,18 @@ export class GameService {
     private readonly gameQuery: GameQuery
   ) {}
 
-  public selectCharacter(character: string): void {
-    const gameIsAlreadyFinished = this.gameQuery.gameIsFinished;
+  public async selectCharacter(character: string): Promise<void> {
+    const gameIsAlreadyFinished = await firstValueFrom(
+      this.gameQuery.gameIsFinished$.pipe(take(1))
+    );
 
     if (gameIsAlreadyFinished) {
       return;
     }
 
-    const attemptedLetters = this.gameQuery.attemptedLetters;
+    const attemptedLetters = await firstValueFrom(
+      this.gameQuery.attemptedLetters$
+    );
 
     if (!attemptedLetters.includes(character)) {
       this.gameStore.update((state) => {
