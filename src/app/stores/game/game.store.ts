@@ -3,8 +3,9 @@ import { Store, StoreConfig } from '@datorama/akita';
 import { createInitialState } from './initial-state';
 
 export interface GameState {
-  word: string | null;
+  word: string;
   attemptedLetters: string[];
+  allLetters: string[];
 }
 @Injectable({
   providedIn: 'root',

@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Query } from '@datorama/akita';
 import { createSelector, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { characters } from './characters';
 import { GameState, GameStore } from './game.store';
 
 @Injectable({
@@ -17,6 +16,8 @@ export class GameQuery extends Query<GameState> {
   );
 
   private selectWord = createSelector(this.selectState, (state) => state.word);
+
+  private selectAllLetters = createSelector(this.selectState, (state) => state.allLetters);
 
   private selectFoundCorrectLetters = createSelector(
     this.selectAttemptedLetters,
@@ -58,8 +59,9 @@ export class GameQuery extends Query<GameState> {
 
   private selectKeyboardCharacters = createSelector(
     this.selectAttemptedLetters,
-    (attemptedLetters) => {
-      return characters.map((character) => {
+    this.selectAllLetters,
+    (attemptedLetters, allLetters) => {
+      return allLetters.map((character) => {
         const disabled = attemptedLetters.includes(character);
         return {
           character,
