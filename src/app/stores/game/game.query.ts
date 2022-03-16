@@ -1,147 +1,122 @@
 import { Injectable } from '@angular/core';
-import { createSelector, select } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { GameState, GameStore } from './game.store';
+import { map } from 'rxjs';
+import { GameStore } from './game.store';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameQuery {
-  private selectState = (state: GameState) => state;
+  private get state() {
+    return this.store.stateSubject.getValue();
+  }
 
-  private selectAttemptedLetters = createSelector(
-    this.selectState,
-    (state) => state.attemptedLetters
-  );
+  public get attemptedLetters() {
+    const state = this.state;
+    return state.attemptedLetters;
+  }
 
-  private selectWord = createSelector(this.selectState, (state) => state.word);
+  private get word() {
+    const state = this.state;
+    return state.word;
+  }
 
-  private selectAllLetters = createSelector(
-    this.selectState,
-    (state) => state.allLetters
-  );
+  private get allLetters() {
+    const state = this.state;
+    return state.allLetters;
+  }
 
-  private selectFoundCorrectLetters = createSelector(
-    this.selectAttemptedLetters,
-    this.selectWord,
-    (attemptedLetters, word) =>
-      attemptedLetters.filter((letter) => (word ?? '').includes(letter))
-  );
+  private get foundCorrectLetters() {
+    const attemptedLetters = this.attemptedLetters;
+    const word = this.word;
+    return attemptedLetters.filter((letter) => (word ?? '').includes(letter));
+  }
 
-  private selectAttemptedInvalidLetters = createSelector(
-    this.selectAttemptedLetters,
-    this.selectWord,
-    (attemptedLetters, word) =>
-      attemptedLetters.filter((letter) => !(word ?? '').includes(letter))
-  );
+  private get attemptedInvalidLetters() {
+    const attemptedLetters = this.attemptedLetters;
+    const word = this.word;
+    return attemptedLetters.filter((letter) => !(word ?? '').includes(letter));
+  }
 
-  private selectAttemptedInvalidLettersCount = createSelector(
-    this.selectAttemptedInvalidLetters,
-    (attemptedInvalidLetters) => attemptedInvalidLetters.length
-  );
+  private get attemptedInvalidLettersCount() {
+    const attemptedInvalidLetters = this.attemptedInvalidLetters;
+    return attemptedInvalidLetters.length;
+  }
 
-  private selectWordCharactersToDisplay = createSelector(
-    this.selectWord,
-    this.selectFoundCorrectLetters,
-    (word, foundCorrectLetters) => {
-      return (word ?? '').split('').map((character) => {
-        if (foundCorrectLetters.includes(character)) {
-          return character;
-        } else {
-          return '';
-        }
-      });
-    }
-  );
+  private get wordCharactersToDisplay() {
+    const word = this.word;
+    const foundCorrectLetters = this.foundCorrectLetters;
+    return (word ?? '').split('').map((character) => {
+      if (foundCorrectLetters.includes(character)) {
+        return character;
+      } else {
+        return '';
+      }
+    });
+  }
 
-  private selectWordLength = createSelector(
-    this.selectWord,
-    (word) => (word ?? '').length
-  );
+  private get wordLength() {
+    const word = this.word;
+    return (word ?? '').length;
+  }
 
-  private selectKeyboardCharacters = createSelector(
-    this.selectAttemptedLetters,
-    this.selectAllLetters,
-    (attemptedLetters, allLetters) => {
-      return allLetters.map((character) => {
-        const disabled = attemptedLetters.includes(character);
-        return {
-          character,
-          disabled,
-        };
-      });
-    }
-  );
+  private get keyboardCharacters() {
+    const attemptedLetters = this.attemptedLetters;
+    const allLetters = this.allLetters;
+    return allLetters.map((character) => {
+      const disabled = attemptedLetters.includes(character);
+      return {
+        character,
+        disabled,
+      };
+    });
+  }
 
-  private selectGameIsWon = createSelector(
-    this.selectWordCharactersToDisplay,
-    (wordCharactersToDisplay) => {
-      return wordCharactersToDisplay.every((characterData) => !!characterData);
-    }
-  );
+  private get gameIsWon() {
+    const wordCharactersToDisplay = this.wordCharactersToDisplay;
+    return wordCharactersToDisplay.every((characterData) => !!characterData);
+  }
 
-  private selectGameIsLost = createSelector(
-    this.selectAttemptedInvalidLettersCount,
-    (attemptedInvalidLettersCount) => {
-      return attemptedInvalidLettersCount >= 10;
-    }
-  );
+  private get gameIsLost() {
+    const attemptedInvalidLettersCount = this.attemptedInvalidLettersCount;
+    return attemptedInvalidLettersCount >= 10;
+  }
 
-  private selectGameIsFinished = createSelector(
-    this.selectGameIsWon,
-    this.selectGameIsLost,
-    (won, lost) => {
-      return won || lost;
-    }
-  );
+  public get gameIsFinished() {
+    const gameIsWon = this.gameIsWon;
+    const gameIsLost = this.gameIsLost;
+    return gameIsWon || gameIsLost;
+  }
 
-  private selectGameIsInProgress = createSelector(
-    this.selectGameIsWon,
-    this.selectGameIsLost,
-    (won, lost) => {
-      return !won && !lost;
-    }
-  );
+  private get gameIsInProgress() {
+    const gameIsFinished = this.gameIsFinished;
+    return !gameIsFinished;
+  }
 
   public allState$ = this.store.stateSubject.asObservable();
 
-  public attemptedInvalidLettersCount$ = this.ngRxSelect$(
-    this.selectAttemptedInvalidLettersCount
+  public attemptedInvalidLettersCount$ = this.allState$.pipe(
+    map(() => this.attemptedInvalidLettersCount)
   );
 
-  public wordCharactersToDisplay$ = this.ngRxSelect$(
-    this.selectWordCharactersToDisplay
+  public wordCharactersToDisplay$ = this.allState$.pipe(
+    map(() => this.wordCharactersToDisplay)
   );
 
-  public gameIsWon$ = this.ngRxSelect$(this.selectGameIsWon);
+  public gameIsWon$ = this.allState$.pipe(map(() => this.gameIsWon));
 
-  public gameIsLost$ = this.ngRxSelect$(this.selectGameIsLost);
+  public gameIsLost$ = this.allState$.pipe(map(() => this.gameIsLost));
 
-  public gameIsInProgress$ = this.ngRxSelect$(this.selectGameIsInProgress);
+  public gameIsInProgress$ = this.allState$.pipe(
+    map(() => this.gameIsInProgress)
+  );
 
-  public gameIsFinished$ = this.ngRxSelect$(this.selectGameIsFinished);
+  public gameIsFinished$ = this.allState$.pipe(map(() => this.gameIsFinished));
 
-  public wordLength$ = this.ngRxSelect$(this.selectWordLength);
+  public wordLength$ = this.allState$.pipe(map(() => this.wordLength));
 
-  public keyboardCharacters$ = this.ngRxSelect$(this.selectKeyboardCharacters);
-
-  public get attemptedLetters(): string[] {
-    return this.ngRxSelect(this.selectAttemptedLetters);
-  }
-
-  public get gameIsFinished(): boolean {
-    return this.ngRxSelect(this.selectGameIsFinished);
-  }
+  public keyboardCharacters$ = this.allState$.pipe(
+    map(() => this.keyboardCharacters)
+  );
 
   constructor(private store: GameStore) {}
-
-  private ngRxSelect$<GameState, K>(
-    mapFn: (state: GameState) => K
-  ): Observable<K> {
-    return this.allState$.pipe(select(mapFn as any));
-  }
-
-  private ngRxSelect<GameState, K>(mapFn: (state: GameState) => K): K {
-    return mapFn(this.store.stateSubject.getValue() as any);
-  }
 }
