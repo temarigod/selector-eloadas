@@ -125,14 +125,6 @@ export class GameQuery {
 
   public keyboardCharacters$ = this.ngRxSelect$(this.selectKeyboardCharacters);
 
-  public get word(): string | null {
-    return this.ngRxSelect(this.selectWord);
-  }
-
-  public get attemptedInvalidLetters(): string[] {
-    return this.ngRxSelect(this.selectAttemptedInvalidLetters);
-  }
-
   public get attemptedLetters(): string[] {
     return this.ngRxSelect(this.selectAttemptedLetters);
   }
