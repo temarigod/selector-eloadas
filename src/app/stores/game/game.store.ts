@@ -3,8 +3,6 @@ import { Store, StoreConfig } from '@datorama/akita';
 import { createInitialState } from './initial-state';
 
 export interface GameState {
-  availableWords: string[];
-  chosenWordLength: number | null;
   word: string | null;
   attemptedLetters: string[];
 }

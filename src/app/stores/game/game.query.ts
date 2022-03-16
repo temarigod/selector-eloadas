@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Query } from '@datorama/akita';
 import { createSelector, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { AppRoute } from 'src/app/enums/app-route.enum';
 import { characters } from './characters';
 import { GameState, GameStore } from './game.store';
 
@@ -11,16 +10,6 @@ import { GameState, GameStore } from './game.store';
 })
 export class GameQuery extends Query<GameState> {
   private selectState = (state: GameState) => state;
-
-  private selectAvailableWords = createSelector(
-    this.selectState,
-    (state) => state.availableWords
-  );
-
-  private selectChosenWordLength = createSelector(
-    this.selectState,
-    (state) => state.chosenWordLength
-  );
 
   private selectAttemptedLetters = createSelector(
     this.selectState,
@@ -46,34 +35,6 @@ export class GameQuery extends Query<GameState> {
   private selectAttemptedInvalidLettersCount = createSelector(
     this.selectAttemptedInvalidLetters,
     (attemptedInvalidLetters) => attemptedInvalidLetters.length
-  );
-
-  private selectAvailableWordLengths = createSelector(
-    this.selectAvailableWords,
-    (availableWords) => {
-      const lengthsAsObject: Record<number, true> = {};
-      availableWords.forEach((word) => {
-        lengthsAsObject[word.length] = true;
-      });
-
-      const lengths = Object.keys(lengthsAsObject).map((length) =>
-        parseInt(length)
-      );
-      lengths.sort((a, b) => a - b);
-
-      return lengths;
-    }
-  );
-
-  private selectNextRouteFromInstructions = createSelector(
-    this.selectChosenWordLength,
-    (chosenWordLength) => {
-      if (chosenWordLength !== null) {
-        return [AppRoute.Game];
-      } else {
-        return [AppRoute.WordLengthSelection];
-      }
-    }
   );
 
   private selectWordCharactersToDisplay = createSelector(
@@ -140,14 +101,6 @@ export class GameQuery extends Query<GameState> {
 
   public allState$ = this.select();
 
-  public availableWordLengths$ = this.ngRxSelect$(
-    this.selectAvailableWordLengths
-  );
-
-  public nextRouteFromInstructions$ = this.ngRxSelect$(
-    this.selectNextRouteFromInstructions
-  );
-
   public attemptedInvalidLettersCount$ = this.ngRxSelect$(
     this.selectAttemptedInvalidLettersCount
   );
@@ -167,18 +120,6 @@ export class GameQuery extends Query<GameState> {
   public wordLength$ = this.ngRxSelect$(this.selectWordLength);
 
   public keyboardCharacters$ = this.ngRxSelect$(this.selectKeyboardCharacters);
-
-  public get availableWordLengths(): number[] {
-    return this.ngRxSelect(this.selectAvailableWordLengths);
-  }
-
-  public get chosenWordLength(): number | null {
-    return this.ngRxSelect(this.selectChosenWordLength);
-  }
-
-  public get availableWords(): string[] {
-    return this.ngRxSelect(this.selectAvailableWords);
-  }
 
   public get word(): string | null {
     return this.ngRxSelect(this.selectWord);
