@@ -16,11 +16,6 @@ export class GameQuery {
 
   private selectWord = createSelector(this.selectState, (state) => state.word);
 
-  private selectAllLetters = createSelector(
-    this.selectState,
-    (state) => state.allLetters
-  );
-
   private selectFoundCorrectLetters = createSelector(
     this.selectAttemptedLetters,
     this.selectWord,
@@ -33,6 +28,11 @@ export class GameQuery {
     this.selectWord,
     (attemptedLetters, word) =>
       attemptedLetters.filter((letter) => !(word ?? '').includes(letter))
+  );
+
+  private selectAllLetters = createSelector(
+    this.selectState,
+    (state) => state.allLetters
   );
 
   private selectAttemptedInvalidLettersCount = createSelector(
@@ -103,8 +103,6 @@ export class GameQuery {
     }
   );
 
-  public allState$ = this.store.stateSubject.asObservable();
-
   public attemptedInvalidLettersCount$ = this.ngRxSelect$(
     this.selectAttemptedInvalidLettersCount
   );
@@ -138,7 +136,7 @@ export class GameQuery {
   private ngRxSelect$<GameState, K>(
     mapFn: (state: GameState) => K
   ): Observable<K> {
-    return this.allState$.pipe(select(mapFn as any));
+    return this.store.stateSubject.asObservable().pipe(select(mapFn as any));
   }
 
   private ngRxSelect<GameState, K>(mapFn: (state: GameState) => K): K {
