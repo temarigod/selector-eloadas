@@ -1,0 +1,15 @@
+.hangman {
+  height: 120px;
+  width: 100px;
+
+  path,
+  circle {
+    stroke: #000;
+
+    stroke-width: 0.25;
+
+    stroke-linecap: round;
+
+    fill: none;
+  }
+}

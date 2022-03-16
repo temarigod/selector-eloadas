@@ -1,0 +1,28 @@
+<a [routerLink]="[AppRoute.Instructions]" class="instructions-link">INSTRUCTIONS →</a>
+<div class="game-layout d-flex align-items-start justify-content-center">
+  <app-stickman class="d-none d-md-block desktop-stickman"></app-stickman>
+  <div class="game-body d-flex flex-column flex-grow-1">
+    <h1>The Hangman</h1>
+    <app-stickman class="d-block d-md-none mobile-stickman"></app-stickman>
+    <div class="status">
+      <span *ngIf="gameQuery.gameIsInProgress$ | async"
+        >It's a{{ (gameQuery.wordLength$ | async) === 8 ? "n" : "" }}
+        {{ gameQuery.wordLength$ | async }} letter word</span
+      >
+      <span class="won" *ngIf="gameQuery.gameIsWon$ | async">You've won</span>
+      <span class="lost" *ngIf="gameQuery.gameIsLost$ | async"
+        >You've lost</span
+      >
+    </div>
+    <app-word class="mt-10px"></app-word>
+
+    <div class="mt-24px">Play with a word</div>
+    <app-keyboard class="mt-10px"></app-keyboard>
+    <div class="actions mt-24px">
+      <button class="end-game-button" (click)="endGame()">END GAME</button>
+      <button class="start-new-game-button" (click)="startNewGame()">
+        START NEW GAME
+      </button>
+    </div>
+  </div>
+</div>

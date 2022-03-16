@@ -1,0 +1,40 @@
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+@import '~bootstrap/scss/utilities';
+@import '~bootstrap/scss/utilities/api';
+
+@import '~bootstrap/scss/root';
+@import '~bootstrap/scss/reboot';
+/**
+
+** -------------------------------- CUSTOM SCSS ---------------------------------
+*/
+@import 'styles/utilities.scss';
+@import 'styles/variables.scss';
+@import 'styles/hangman-svg.scss';
+/**
+
+** -------------------------------- GLOBAL CLASSES BECAUSE IN THOSE CASES A NEW COMPONENT WOULD BE UNNECESSARY ---------------------------------
+*/
+@import 'styles/button-with-shadow.scss';
+@import 'styles/next-link.scss';
+
+// Global settings for html
+html {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    font-size: 16px !important;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: bold;
+  margin: none;
+}

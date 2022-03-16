@@ -1,0 +1,8 @@
+<button
+  *ngFor="let characterData of (gameQuery.keyboardCharacters$ | async)!"
+  [disabled]="characterData.disabled"
+  (click)="selectCharacter(characterData.character)"
+  class="button-with-shadow character text-uppercase"
+>
+  {{ characterData.character }}
+</button>

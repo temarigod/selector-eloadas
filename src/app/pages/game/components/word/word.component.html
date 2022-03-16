@@ -1,0 +1,6 @@
+<div
+  class="character d-flex justify-content-center align-items-center flex-shrink-0 text-uppercase"
+  *ngFor="let character of (gameQuery.wordCharactersToDisplay$ | async)!"
+>
+  {{ character }}
+</div>
